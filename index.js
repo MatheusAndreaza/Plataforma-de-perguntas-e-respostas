@@ -1,6 +1,16 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
+const connection = require('./database/database');
+const Pergunta = require('./database/Pergunta');
+
+connection.authenticate()
+    .then(() => {
+        console.log('conectado com sucesso!!');
+    })
+    .catch(erro => {
+        console.log('Erro do banco : '+ erro);
+    });
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
@@ -19,7 +29,16 @@ app.get('/perguntar', (req, res) => {
 app.post('/salvarpergunta', (req, res) => {
     const { titulo, descricao } = req.body;
 
-    console.log(titulo);
+    if(titulo != '' && descricao != ''){
+        Pergunta.create({
+            titulo,
+            descricao
+        }).then(() => {
+            res.redirect('/');
+        });
+    }else{
+        res.redirect('/perguntar');
+    }
 });
 
 app.listen(3000);
